@@ -1,14 +1,20 @@
 // require('dotenv').config()
-
 let breweriesPage1, breweriesPage2, allBreweries, coords, city, myCity, currentLat, currentLong;
 
 window.onload = function() {
+    
+}
+
+const getLocation = () => {
     navigator.geolocation.getCurrentPosition(function(position){
         console.log(position)
         currentLat = position.coords.latitude;
         currentLong = position.coords.longitude;
+        console.log('current lat: ', currentLat, 'current lat: ', currentLong)
     })
 }
+
+getLocation()
 
 const getCity = () => {
     fetch(`https://www.mapquestapi.com/geocoding/v1/reverse?key=IOGuXL0zAKHaQVwYf9qGnm4UQm9ZG7PZ&location=${currentLat}%2C${currentLong}&outFormat=json&thumbMaps=false`)
@@ -22,7 +28,7 @@ const getCity = () => {
 setTimeout(()=>{
     getCity()
 
-}, 2000)
+}, 1000)
 
 const getBreweries = () => {
     fetch(`https://api.openbrewerydb.org/breweries?by_city=${myCity}&per_page=50`)
@@ -44,26 +50,7 @@ const getBreweries = () => {
 
 setTimeout(()=> {
     getBreweries()
-}, 3000)
-
-
-const checkForNear = () => {
-    let nearByBrews = [];
-    for (let brewery of allBreweries) {
-        if (brewery.latitude !== null) {
-            let diffLat = Math.abs(brewery.latitude-currentLat)
-            if (diffLat <= .144927) {
-                let diffLong = Math.abs(brewery.longitude-currentLong)
-                if (diffLong <= .144927) {
-                    nearByBrews.push(brewery)
-                }
-            }
-        }
-    }
-    console.log(nearByBrews)
-}
-
-
+}, 2000)
 
 
 
