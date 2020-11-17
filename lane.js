@@ -28,7 +28,7 @@ const getCity = () => {
 setTimeout(()=>{
     getCity()
 
-}, 2000)
+}, 1000)
 
 const getBreweries = () => {
     fetch(`https://api.openbrewerydb.org/breweries?by_city=${myCity}&per_page=50`)
@@ -50,7 +50,7 @@ const getBreweries = () => {
 
 setTimeout(()=> {
     getBreweries()
-}, 3000)
+}, 2000)
 
 
 
