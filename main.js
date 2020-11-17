@@ -1,6 +1,6 @@
 // require('dotenv').config()
 
-let breweriesPage1, breweriesPage2, allBreweries, coords, city, myCity, currentLat, currentLong;
+let nearByBrews = [], breweriesPage1, breweriesPage2, allBreweries, coords, city, myCity, currentLat, currentLong;
 
 window.onload = function() {
     navigator.geolocation.getCurrentPosition(function(position){
@@ -8,6 +8,17 @@ window.onload = function() {
         currentLat = position.coords.latitude;
         currentLong = position.coords.longitude;
     })
+    setTimeout(()=>{
+        getCity()
+    }, 4000)
+
+    setTimeout(()=> {
+        getBreweries()
+    }, 5000)
+
+    setTimeout(()=> {
+        checkForNear()
+    }, 6000)
 }
 
 const getCity = () => {
@@ -18,11 +29,6 @@ const getCity = () => {
         console.log(myCity)
     })
 }
-
-setTimeout(()=>{
-    getCity()
-
-}, 2000)
 
 const getBreweries = () => {
     fetch(`https://api.openbrewerydb.org/breweries?by_city=${myCity}&per_page=50`)
@@ -42,13 +48,7 @@ const getBreweries = () => {
     });
 }
 
-setTimeout(()=> {
-    getBreweries()
-}, 3000)
-
-
 const checkForNear = () => {
-    let nearByBrews = [];
     for (let brewery of allBreweries) {
         if (brewery.latitude !== null) {
             let diffLat = Math.abs(brewery.latitude-currentLat)
@@ -62,9 +62,6 @@ const checkForNear = () => {
     }
     console.log(nearByBrews)
 }
-
-
-
 
 
 
