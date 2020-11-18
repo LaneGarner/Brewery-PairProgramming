@@ -2,6 +2,15 @@
 
 let nearByBrews = [], favoriteBrews= [], dif = 0.21739130434782608, breweriesPage1, breweriesPage2, allBreweries, coords, city, myCity, currentLat, currentLong;
 
+
+const randomBeerPic = () => {
+    const beerPics =['/photos/beer01.jpg', '/photos/beer02.jpg', '/photos/beer03.jpg', '/photos/beer04.jpg', '/photos/beer05.jpg', '/photos/beer06.jpg', '/photos/beer07.jpg', '/photos/beer08.jpg', '/photos/beer09.jpg', '/photos/beer10.jpg', '/photos/beer11.jpg', '/photos/beer12.jpg', '/photos/beer13.jpg', '/photos/beer14.jpg', '/photos/beer15.jpg']
+    let randomBeer = beerPics[Math.floor(Math.random() * beerPics.length)]
+    // let randomBeerSelect = `${randomBeer}"></img>`
+    return randomBeer
+}
+
+
 const getLocation = () => {
     return new Promise((resolve)=>{
 
@@ -206,9 +215,11 @@ const displayNearByBrews = () => {
     console.log(nearByBrews)
     nearByBrews.map((brew, index) => {
         console.log(brew.name, brew.street, brew.city, brew.state, brew.phone, brew.website_url)
-        brewItem = document.createElement('li')
-        let name = document.createElement('h2')
-            name.innerHTML = brew.name
+        brewItem = document.createElement('li');
+        let name = document.createElement('h2');
+            name.innerHTML = brew.name;
+        let image = document.createElement('img');
+            image.src = `${randomBeerPic()}`;
         let info = document.createElement('p');
             info.innerHTML = `
                 <strong>Address:</strong> ${brew.street}, ${brew.city}, ${brew.state}<br>
@@ -221,7 +232,7 @@ const displayNearByBrews = () => {
             i.setAttribute("onclick", "likeIt(this)")
             i.id = this.index;
 
-
+        brewItem.appendChild(image)
         brewItem.appendChild(name)
         brewItem.appendChild(info)
         brewItem.appendChild(i)
