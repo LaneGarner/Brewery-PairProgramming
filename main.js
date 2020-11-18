@@ -1,6 +1,6 @@
 // const env = require('dotenv').config()
 
-let nearByBrews = [], breweriesPage1, breweriesPage2, allBreweries, coords, city, myCity, currentLat, currentLong;
+let nearByBrews = [], favoriteBrews= [], dif = 0.21739130434782608, breweriesPage1, breweriesPage2, allBreweries, coords, city, myCity, currentLat, currentLong;
 
 const getLocation = () => {
     return new Promise((resolve)=>{
@@ -95,6 +95,37 @@ const getMoreBreweries = () => {
     })
 }
 
+const checkForCoords = () => {
+    return new Promise((resolve)=>{
+        let newLat;
+        let lewLong;
+        for(let brewery of allBreweries) {
+            if (brewery.latitude === null && brewery.street !== "") {
+                let streetAdd = [];
+                streetAdd = brewery.street.split(" ")
+                let newStreet = streetAdd.join("+")
+
+                getNewCoords(newStreet, brewery.city, brewery.state, brewery)
+            }
+        }
+        console.log('*****', allBreweries)
+        resolve()
+    })
+}
+
+
+const getNewCoords = (street,city,state,brewery) => {
+    fetch(`https://www.mapquestapi.com/geocoding/v1/address?key=IOGuXL0zAKHaQVwYf9qGnm4UQm9ZG7PZ&inFormat=kvp&outFormat=json&location=${street}+${city}+${state}&thumbMaps=false`)
+    .then(res => res.json())
+    .then(response => {
+        coords = response;
+        // console.log(coords.results[0].locations[0].displayLatLng)
+        brewery.latitude = coords.results[0].locations[0].displayLatLng.lat
+        brewery.longitude = coords.results[0].locations[0].displayLatLng.lng
+        console.log(brewery)
+    })
+}
+
 const updateCity = () => {
     if (allBreweries.length === 0){
         return new Promise((resolve)=>{
@@ -115,7 +146,8 @@ const updateCity = () => {
                 // }, 2000)
             })
             .then(getBreweries)
-            .then(getMoreBreweries);
+            .then(getMoreBreweries)
+            .then(getCoords);
     } else {
         return new Promise((resolve)=>{
             resolve()
@@ -130,9 +162,9 @@ const checkForNear = () => {
         for (let brewery of allBreweries) {
             if (brewery.latitude !== null) {
                 let diffLat = Math.abs(brewery.latitude-currentLat)
-                if (diffLat <= .144927) {
+                if (diffLat <= dif) {
                     let diffLong = Math.abs(brewery.longitude-currentLong)
-                    if (diffLong <= .144927) {
+                    if (diffLong <= dif) {
                         nearByBrews.push(brewery)
                     }
                 }
@@ -172,7 +204,7 @@ const displayNearByBrews = () => {
     let load = document.querySelector('#load')
     let brewItem;
     console.log(nearByBrews)
-    nearByBrews.forEach(brew => {
+    nearByBrews.map((brew, index) => {
         console.log(brew.name, brew.street, brew.city, brew.state, brew.phone, brew.website_url)
         brewItem = document.createElement('li')
         let name = document.createElement('h2')
@@ -181,10 +213,18 @@ const displayNearByBrews = () => {
             info.innerHTML = `
                 <strong>Address:</strong> ${brew.street}, ${brew.city}, ${brew.state}<br>
                 <strong>Phone:</strong> ${brew.phone}<br>
-                <strong>Website:</strong> <a href ="${brew.website_url}" target="_blank">${brew.website_url.slice(11)}</a>
+                <strong>Website:</strong> <a href ="${brew.website_url}" target="_blank">${brew.website_url.slice(11)}</a><br>
             `
+        const i = document.createElement('i');
+            i.classList.add("far")
+            i.classList.add("fa-heart")
+            i.setAttribute("onclick", "likeIt(this)")
+            i.id = this.index;
+
+
         brewItem.appendChild(name)
         brewItem.appendChild(info)
+        brewItem.appendChild(i)
         listOfBrews.appendChild(brewItem)
     })
 
@@ -192,10 +232,27 @@ const displayNearByBrews = () => {
     load.style.display = 'none';
 }
 
+
+const likeIt = (elem) => {
+    let index = elem.id
+    if (elem.classList.contains("far")) {
+        elem.classList.remove("far");
+        elem.classList.add("fas");
+        favoriteBrews.push(nearByBrews[index])
+
+    } else if (elem.classList.contains("fas")) {
+        elem.classList.remove("fas");
+        elem.classList.add("far");
+    }
+    console.log(favoriteBrews)
+}
+
+
 getLocation()
     .then(getCity)
     .then(getBreweries)
     .then(getMoreBreweries)
+    .then(checkForCoords)
     .then(updateCity)
     .then(checkForNear)
     .then(displayNearByBrews);
