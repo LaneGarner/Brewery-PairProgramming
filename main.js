@@ -95,9 +95,37 @@ const getMoreBreweries = () => {
     })
 }
 
+const updateCity = () => {
+    if (allBreweries === []){
+        return new Promise((resolve)=>{
+            
+            console.log('updatecity')
+            myCity = prompt("Hmm... it looks like there are no breweries in your city.", "Enter the name of a nearby city here")
+            // console.log(input)
+            // myCity = input.toLowerCase();
+            breweriesPage1 = null;
+            breweriesPage2 = null;
+            allBreweries = null;
+            // nearByBrews = [];
+            console.log(myCity)
+            resolve()
+            // getCoords(myCity)
+            // setTimeout(() => {
+                //     checkForNear()
+                // }, 2000)
+            })
+            .then(getBreweries)
+            .then(getMoreBreweries);
+    } else {
+        return new Promise((resolve)=>{
+            resolve()
+        })
+    }
+}
+
 const checkForNear = () => {
     return new Promise((resolve)=>{
-    console.log(allBreweries)
+        console.log(allBreweries)
 
         for (let brewery of allBreweries) {
             if (brewery.latitude !== null) {
@@ -168,6 +196,7 @@ getLocation()
     .then(getCity)
     .then(getBreweries)
     .then(getMoreBreweries)
+    .then(updateCity)
     .then(checkForNear)
     .then(displayNearByBrews);
 

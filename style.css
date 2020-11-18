@@ -19,7 +19,7 @@ h1 {
     text-align: center;
 }
 
-.blink_me {
+.blinkMe {
     animation: blinker 1s linear infinite;
 }
 
@@ -51,4 +51,10 @@ li {
     width: 80%;
     box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
     background: white;
+}
+
+input {
+    border: none;
+    width: 80%;
+    display: none;
 }
