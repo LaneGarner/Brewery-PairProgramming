@@ -2,79 +2,112 @@
 
 let nearByBrews = [], breweriesPage1, breweriesPage2, allBreweries, coords, city, myCity, currentLat, currentLong, favoriteBrews = [], newLat, newLong;
 
-window.onload = function() {
-    navigator.geolocation.getCurrentPosition(function(position){
+// window.onload = function() {
+//     navigator.geolocation.getCurrentPosition(function(position){
+//         console.log(position)
+//         currentLat = position.coords.latitude;
+//         currentLong = position.coords.longitude;
+//     })
+//     setTimeout(()=>{
+//         getCity()
+//     }, 4000)
+
+//     setTimeout(()=> {
+//         getBreweries()
+//     }, 5000)
+
+//     setTimeout(()=> {
+//         checkForCoords()
+//     }, 6000)
+// }
+const getLocation = () => {
+    return new Promise((resolve) => {
+        navigator.geolocation.getCurrentPosition(function(position){
         console.log(position)
         currentLat = position.coords.latitude;
         currentLong = position.coords.longitude;
+        resolve();
+        })
     })
-    setTimeout(()=>{
-        getCity()
-    }, 4000)
-
-    setTimeout(()=> {
-        getBreweries()
-    }, 5000)
-
-    setTimeout(()=> {
-        checkForCoords()
-    }, 6000)
 }
-
 const getCity = () => {
-    fetch(`https://www.mapquestapi.com/geocoding/v1/reverse?key=IOGuXL0zAKHaQVwYf9qGnm4UQm9ZG7PZ&location=${currentLat}%2C${currentLong}&outFormat=json&thumbMaps=false`)
-    .then(res=>res.json())
-    .then(response => {
-        myCity = response.results[0].locations[0].adminArea5
-        console.log(myCity)
-        document.getElementById("curLocation").innerHTML = myCity;
+    return new Promise((resolve) => {
+        console.log(currentLat)
+        console.log(currentLong)
+        fetch(`https://www.mapquestapi.com/geocoding/v1/reverse?key=IOGuXL0zAKHaQVwYf9qGnm4UQm9ZG7PZ&location=${currentLat}%2C${currentLong}&outFormat=json&thumbMaps=false`)
+        .then(res=>res.json())
+        .then(response => {
+            myCity = response.results[0].locations[0].adminArea5
+            console.log(myCity)
+            document.getElementById("curLocation").innerHTML = myCity;
+            resolve()
+        })
+    });
+}   
+
+const getMoreBreweries = () => {
+    console.log("get more")
+    return new Promise((resolve) => {
+        if (breweriesPage1.length >= 50) {
+        fetch(`https://api.openbrewerydb.org/breweries?by_city=${myCity}&per_page=50&page=2`)
+            .then(res => res.json())
+            .then(response => {
+            breweriesPage2 = response;
+            allBreweries = breweriesPage1.concat(breweriesPage2)
+            resolve()
+            // console.log(allBreweries)
+            })
+            .catch(err => {
+            console.error(err);
+            });
+        } else {
+            allBreweries = breweriesPage1
+            resolve()
+        }
+        
+    })
+};
+
+const listNumber = () => {
+    return new Promise((resolve) => {
+        let numOfBrews = allBreweries.length;
+        if (numOfBrews > 0) {
+            document.getElementById("numOfBreweries").innerHTML = `There are <br>${numOfBrews} breweries in your city.`
+            resolve()
+        } else {
+            document.getElementById("numOfBreweries").innerHTML = `Oh no!<br>There are ${numOfBrews} breweries in your city. Try searching a nearby city.`
+            resolve()
+        }
     })
 }
 
 const getBreweries = () => {
-    // myCity = "austin"
-    fetch(`https://api.openbrewerydb.org/breweries?by_city=${myCity}&per_page=50`)
-    .then(res => res.json())
-    .then(response => {
-        breweriesPage1 = response;
-    })
-    .catch(err => {
-        console.error(err);
-    });
-    setTimeout(() => {
-        if (breweriesPage1.length === 50) {
-            fetch(`https://api.openbrewerydb.org/breweries?by_city=${myCity}&per_page=50&page=2`)
+    return new Promise((resolve) => {
+        // myCity = "austin"
+        console.log(myCity)
+        fetch(`https://api.openbrewerydb.org/breweries?by_city=${myCity}&per_page=50`)
             .then(res => res.json())
             .then(response => {
-                breweriesPage2 = response;
-                    allBreweries = breweriesPage1.concat(breweriesPage2)
-                    console.log(allBreweries)
+            breweriesPage1 = response;
+            resolve()
             })
-            .catch(err => {
-                console.error(err);
-            });
-        } else {
-            allBreweries = breweriesPage1;
-        }
-    }, 500)
-    
-    setTimeout(() => {
-        let numOfBrews = allBreweries.length;
-        if (numOfBrews > 0) {
-            document.getElementById("numOfBreweries").innerHTML = `There are <br>${numOfBrews} breweries in your city.`
-        } else {
-            document.getElementById("numOfBreweries").innerHTML = `Oh no!<br>There are ${numOfBrews} breweries in your city. Try searching a nearby city.`
-        }
-    }, 600)
+        .catch(err => {
+        console.error(err);
+        });
+        
+    })
 }
 
+
 const checkForNear = (dist) => {
-    for (let brewery of allBreweries) {
+    console.log('checking for near')
+        for (let brewery of allBreweries) {
         if (brewery.latitude !== null) {
             let diffLat = Math.abs(brewery.latitude-currentLat)
             if (diffLat <= dist) {
                 let diffLong = Math.abs(brewery.longitude-currentLong)
                 if (diffLong <= dist) {
+                    console.log(brewery)
                     nearByBrews.push(brewery)
                 }
             }
@@ -84,18 +117,22 @@ const checkForNear = (dist) => {
 }
 
 const getCoords = (city) => {
-    fetch(`https://www.mapquestapi.com/geocoding/v1/address?key=8q0FAWlpVLSby4A5G8GyjZliyncLL3Wh&inFormat=kvp&outFormat=json&location=${city}&thumbMaps=false`)
-    .then(res => res.json())
-    .then(response => {
-        coords = response;
-        console.log(coords.results[0].locations[0].displayLatLng)
-        currentLat = coords.results[0].locations[0].displayLatLng.lat
-        currentLong = coords.results[0].locations[0].displayLatLng.lng
+    return new Promise((resolve) => {
+        fetch(`https://www.mapquestapi.com/geocoding/v1/address?key=8q0FAWlpVLSby4A5G8GyjZliyncLL3Wh&inFormat=kvp&outFormat=json&location=${city}&thumbMaps=false`)
+        .then(res => res.json())
+        .then(response => {
+            coords = response;
+            console.log(coords.results[0].locations[0].displayLatLng)
+            currentLat = coords.results[0].locations[0].displayLatLng.lat
+            currentLong = coords.results[0].locations[0].displayLatLng.lng
+            resolve()
+        })
     })
 }
 
 const updateCity = () => {
     console.log("click button")
+    document.getElementById("searchResults").innerHTML = null;
     let input = document.getElementById("citySearch").value
     myCity = input.toLowerCase();
     breweriesPage1 = null;
@@ -103,14 +140,11 @@ const updateCity = () => {
     allBreweries = null;
     nearByBrews = [];
     console.log(myCity)
-    getBreweries();
+    getBreweries()
+        .then(getMoreBreweries)
+        .then(listNumber);
     getCoords(myCity)
-    setTimeout(()=> {
-        checkForCoords()
-    }, 1000)
-    setTimeout(() => {
-        checkForNear()
-    }, 2000)
+        .then(checkForCoords)
 }
 
 const searchDistance = () => {
@@ -157,17 +191,18 @@ const likeIt = (elem) => {
 // IF NO COORDS .. GET ADDRESS AND USE GET COORDS FUNCTION BELOW
 // PUSH COORDINATES INTO 
 const checkForCoords = () => {
-    let newLat;
-    let lewLong;
-    for(let brewery of allBreweries) {
-        if (brewery.latitude === null && brewery.street !== "") {
-            let streetAdd = [];
-            streetAdd = brewery.street.split(" ")
-            let newStreet = streetAdd.join("+")
+    return new Promise((resolve) => {
+        for(let brewery of allBreweries) {
+            if (brewery.latitude === null && brewery.street !== "") {
+                let streetAdd = [];
+                streetAdd = brewery.street.split(" ")
+                let newStreet = streetAdd.join("+")
 
-            getNewCoords(newStreet, brewery.city, brewery.state, brewery)
+                getNewCoords(newStreet, brewery.city, brewery.state, brewery)
+            }
         }
-    }
+        resolve()
+    })
 }
 
 
@@ -183,8 +218,13 @@ const getNewCoords = (street,city,state,brewery) => {
     })
 }
 
-
-
+getLocation()
+    .then(getCity)
+    .then(getBreweries)
+    .then(getMoreBreweries)
+    .then(checkForCoords)
+    .then(listNumber);
+    // .then(checkForNear);
 
 // .0144927536261881 = 1 mile
 
