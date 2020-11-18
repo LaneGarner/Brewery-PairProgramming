@@ -1,6 +1,6 @@
 // require('dotenv').config()
 
-let nearByBrews = [], breweriesPage1, breweriesPage2, allBreweries, coords, city, myCity, currentLat, currentLong;
+let nearByBrews = [], breweriesPage1, breweriesPage2, allBreweries, coords, city, myCity, currentLat, currentLong, favoriteBrews = [], newLat, newLong;
 
 window.onload = function() {
     navigator.geolocation.getCurrentPosition(function(position){
@@ -16,9 +16,9 @@ window.onload = function() {
         getBreweries()
     }, 5000)
 
-    // setTimeout(()=> {
-    //     checkForNear()
-    // }, 6000)
+    setTimeout(()=> {
+        checkForCoords()
+    }, 6000)
 }
 
 const getCity = () => {
@@ -127,44 +127,59 @@ const searchDistance = () => {
     }
     const brewList = document.getElementById("searchResults")
     brewList.innerHTML = null;
-    nearByBrews.map((brews) => {
+    nearByBrews.map((brews, index) => {
+        const i = document.createElement('i');
+        i.classList.add("far")
+        i.classList.add("fa-heart")
+        i.setAttribute("onclick", "likeIt(this)")
         const li = document.createElement('li');
+        li.id = index;
         const text = document.createTextNode(`${brews.name} - Brew Type: ${brews.brewery_type} - ${brews.street} ${brews.city}`)
+        li.appendChild(i)
         li.appendChild(text)
         brewList.appendChild(li)
     })
 }
 
+const likeIt = (elem) => {
+    // console.log(elem.parentNode.id)
+    let index = elem.parentNode.id
+    let favNum = document.getElementById("favNum")
+    elem.classList.remove("far");
+    elem.classList.add("fas");
+    favoriteBrews.push(nearByBrews[index])
+    favNum.innerHTML = `You have ${favoriteBrews.length} favorite breweries!`    
+}
+
 //CHECK IF BREW HAS COORDS
 // IF NO COORDS .. GET ADDRESS AND USE GET COORDS FUNCTION BELOW
 // PUSH COORDINATES INTO 
-// const checkForCoords = () => {
-//     let newLat;
-//     let lewLong;
-//     for(let brewery of allBreweries) {
-//         if (brewery.latitude === null && brewery.street !== "") {
-//             let streetAdd = [];
-//             streetAdd = brewery.street.split(" ")
-//             let newStreet = streetAdd.join("+")
-//             // console.log(newStreet)
+const checkForCoords = () => {
+    let newLat;
+    let lewLong;
+    for(let brewery of allBreweries) {
+        if (brewery.latitude === null && brewery.street !== "") {
+            let streetAdd = [];
+            streetAdd = brewery.street.split(" ")
+            let newStreet = streetAdd.join("+")
 
-//             setTimeout(() => {
-//                 getCoords(newStreet, brewery.city, brewery.state)
-//             }, 5000)
-//         }
-//     }
-// }
+            getNewCoords(newStreet, brewery.city, brewery.state, brewery)
+        }
+    }
+}
 
 
-// const getCoords = (city) => {
-//     fetch(`https://www.mapquestapi.com/geocoding/1/address?key=8q0FAWlpVLSby4A5G8GyjZliyncLL3Wh&inFormat=kvp&outFormat=json&location=${city}&thumbMaps=false`)
-//     .then(res => res.json())
-//     .then(response => {
-//         coords = response;
-//         console.log(coords.results[0].locations[0].displayLatLng)
-//     })
-//     console.log(`${street}+${city}+${state}`)
-// }
+const getNewCoords = (street,city,state,brewery) => {
+    fetch(`https://www.mapquestapi.com/geocoding/v1/address?key=8q0FAWlpVLSby4A5G8GyjZliyncLL3Wh&inFormat=kvp&outFormat=json&location=${street}+${city}+${state}&thumbMaps=false`)
+    .then(res => res.json())
+    .then(response => {
+        coords = response;
+        // console.log(coords.results[0].locations[0].displayLatLng)
+        brewery.latitude = coords.results[0].locations[0].displayLatLng.lat
+        brewery.longitude = coords.results[0].locations[0].displayLatLng.lng
+        console.log(brewery)
+    })
+}
 
 // getCoords()
 

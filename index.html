@@ -6,6 +6,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com">
 <link href="https://fonts.googleapis.com/css2?family=Fascinate+Inline&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+    <script src="https://kit.fontawesome.com/13bb615634.js" crossorigin="anonymous"></script>
     <script src="main.js" defer></script>
     <title>Fetch IPA</title>
 </head>
@@ -19,7 +20,7 @@
             <h2>Let's find some breweries near you.</h2>
             <br>
             <h4>Your location is currently:</h4>
-            <h3 id="curLocation">Austin</h3>
+            <h3 id="curLocation">...searching...</h3>
             <div class="inputBox">
                 <h5>Would you like to search another city?</h5>
                 <div class="inputField">
@@ -47,6 +48,9 @@
             <div class=breweryList>
                 <h3 id="numOfNearBreweries"></h3>
                 <ul id="searchResults"></ul>
+            </div>
+            <div>
+                <h3 id=favNum></h3>
             </div>
         </section>
     </main>

@@ -42,3 +42,15 @@ li {
     font-weight: 600;
     font-size: 1.25em;
     list-style: square;
+    list-style: none;
+}
+i {
+    margin-right: 10px;
+}
+i:hover {
+    cursor: pointer;
+}
+#favNum {
+    margin-top: 20px;
+    font-size: 2em;
+}
