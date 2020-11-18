@@ -4,7 +4,7 @@ let nearByBrews = [], favoriteBrews= [], dif = 0.21739130434782608, breweriesPag
 
 
 const randomBeerPic = () => {
-    const beerPics =['/photos/beer01.jpg', '/photos/beer02.jpg', '/photos/beer03.jpg', '/photos/beer04.jpg', '/photos/beer05.jpg', '/photos/beer06.jpg', '/photos/beer07.jpg', '/photos/beer08.jpg', '/photos/beer09.jpg', '/photos/beer10.jpg', '/photos/beer11.jpg', '/photos/beer12.jpg', '/photos/beer13.jpg', '/photos/beer14.jpg', '/photos/beer15.jpg']
+    const beerPics =['photos/beer01.jpg', 'photos/beer02.jpg', 'photos/beer03.jpg', 'photos/beer04.jpg', 'photos/beer05.jpg', 'photos/beer06.jpg', 'photos/beer07.jpg', 'photos/beer08.jpg', 'photos/beer09.jpg', 'photos/beer10.jpg', 'photos/beer11.jpg', 'photos/beer12.jpg', 'photos/beer13.jpg', 'photos/beer14.jpg', 'photos/beer15.jpg']
     let randomBeer = beerPics[Math.floor(Math.random() * beerPics.length)]
     // let randomBeerSelect = `${randomBeer}"></img>`
     return randomBeer
