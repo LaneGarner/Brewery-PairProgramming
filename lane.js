@@ -1,34 +1,58 @@
 // require('dotenv').config()
-let breweriesPage1, breweriesPage2, allBreweries, coords, city, myCity, currentLat, currentLong;
 
-window.onload = function() {
-    
-}
+let nearByBrews = [], breweriesPage1, breweriesPage2, allBreweries, coords, city, myCity, currentLat, currentLong;
+
+// console.log(domBrews)
+
+console.log(currentLat)
+
 
 const getLocation = () => {
     navigator.geolocation.getCurrentPosition(function(position){
         console.log(position)
         currentLat = position.coords.latitude;
         currentLong = position.coords.longitude;
-        console.log('current lat: ', currentLat, 'current lat: ', currentLong)
+        console.log(currentLat, currentLong)
+
+
+
     })
 }
 
 getLocation()
 
+// window.onload = function() {
+
+//     setTimeout(()=>{
+//         getCity()
+//     }, 10000)
+
+//     setTimeout(()=> {
+//         getBreweries()
+//     }, 11000)
+
+//     setTimeout(()=> {
+//         checkForNear()
+//     }, 12000)
+
+//     setTimeout(()=> {
+//         displayNearByBrews()
+//     }, 13000)
+// }
+
 const getCity = () => {
     fetch(`https://www.mapquestapi.com/geocoding/v1/reverse?key=IOGuXL0zAKHaQVwYf9qGnm4UQm9ZG7PZ&location=${currentLat}%2C${currentLong}&outFormat=json&thumbMaps=false`)
     .then(res=>res.json())
     .then(response => {
-        myCity = response.results[0].locations[0].adminArea5
-        console.log(myCity)
+        if(currentLat){
+            myCity = response.results[0].locations[0].adminArea5
+            console.log(myCity)
+        } 
+        else {
+            location.reload();
+        }
     })
 }
-
-setTimeout(()=>{
-    getCity()
-
-}, 1000)
 
 const getBreweries = () => {
     fetch(`https://api.openbrewerydb.org/breweries?by_city=${myCity}&per_page=50`)
@@ -40,18 +64,31 @@ const getBreweries = () => {
     .then(res => res.json())
     .then(response => {
         breweriesPage2 = response;
-        allBreweries = breweriesPage1.concat(breweriesPage2)
-        console.log(allBreweries)
+        setTimeout(()=>{
+            allBreweries = breweriesPage1.concat(breweriesPage2)
+            console.log(allBreweries)
+        }, 500)
+
     })
     .catch(err => {
         console.error(err);
     });
 }
 
-setTimeout(()=> {
-    getBreweries()
-}, 2000)
-
+const checkForNear = () => {
+    for (let brewery of allBreweries) {
+        if (brewery.latitude !== null) {
+            let diffLat = Math.abs(brewery.latitude-currentLat)
+            if (diffLat <= .144927) {
+                let diffLong = Math.abs(brewery.longitude-currentLong)
+                if (diffLong <= .144927) {
+                    nearByBrews.push(brewery)
+                }
+            }
+        }
+    }
+    console.log(nearByBrews)
+}
 
 
 
@@ -70,11 +107,36 @@ const getCoords = () => {
     })
 }
 
-getCoords()
+// getCoords()
 
 
-//COMPARE USER COORDS TO BREW COORDS
 
+
+const displayNearByBrews = () => {
+    let domBrews = document.querySelector('#dom-brews');
+    let listOfBrews = document.createElement('ul');
+    let load = document.querySelector('#load')
+    let brewItem;
+    console.log(nearByBrews)
+    nearByBrews.forEach(brew => {
+        console.log(brew.name, brew.street, brew.city, brew.state, brew.phone, brew.website_url)
+        brewItem = document.createElement('li')
+        let name = document.createElement('h2')
+            name.innerHTML = brew.name
+        let info = document.createElement('p');
+            info.innerHTML = `
+                <strong>Address:</strong> ${brew.street}, ${brew.city}, ${brew.state}<br>
+                <strong>Phone:</strong> ${brew.phone}<br>
+                <strong>Website:</strong> <a href ="${brew.website_url}" target="_blank">${brew.website_url.slice(11)}</a>
+            `
+        brewItem.appendChild(name)
+        brewItem.appendChild(info)
+        listOfBrews.appendChild(brewItem)
+    })
+
+    domBrews.appendChild(listOfBrews)
+    load.style.display = 'none';
+}
 
 // console.log('All breweries: ', allBreweries)
 // console.log('breweries 2: ', breweries2)
