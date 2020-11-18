@@ -105,6 +105,9 @@ const updateCity = () => {
     console.log(myCity)
     getBreweries();
     getCoords(myCity)
+    setTimeout(()=> {
+        checkForCoords()
+    }, 1000)
     setTimeout(() => {
         checkForNear()
     }, 2000)
@@ -142,7 +145,6 @@ const searchDistance = () => {
 }
 
 const likeIt = (elem) => {
-    // console.log(elem.parentNode.id)
     let index = elem.parentNode.id
     let favNum = document.getElementById("favNum")
     elem.classList.remove("far");
@@ -181,14 +183,6 @@ const getNewCoords = (street,city,state,brewery) => {
     })
 }
 
-// getCoords()
-
-
-//COMPARE USER COORDS TO BREW COORDS
-
-
-// console.log('All breweries: ', allBreweries)
-// console.log('breweries 2: ', breweries2)
 
 
 
