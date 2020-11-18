@@ -33,54 +33,89 @@ const getCity = () => {
 }
 
 
+// const getBreweries = () => {
+//     return new Promise((resolve)=>{
+
+//         fetch(`https://api.openbrewerydb.org/breweries?by_city=${myCity}&per_page=50`)
+//         .then(res => res.json())
+//         .then(response => {
+//             breweriesPage1 = response;
+//         })
+
+//         fetch(`https://api.openbrewerydb.org/breweries?by_city=${myCity}&per_page=50&page=2`)
+//         .then(res => res.json())
+//         .then(response => {
+//             breweriesPage2 = response;
+//             setTimeout(()=>{
+//                 allBreweries = breweriesPage1.concat(breweriesPage2)
+//                 console.log(allBreweries)
+//                 resolve()
+//             }, 500)
+            
+//         })
+//         .catch(err => {
+//             console.error(err);
+//         })
+
+//     })
+// }
+
 const getBreweries = () => {
     return new Promise((resolve)=>{
-
         fetch(`https://api.openbrewerydb.org/breweries?by_city=${myCity}&per_page=50`)
         .then(res => res.json())
         .then(response => {
             breweriesPage1 = response;
-        })
-
-        fetch(`https://api.openbrewerydb.org/breweries?by_city=${myCity}&per_page=50&page=2`)
-        .then(res => res.json())
-        .then(response => {
-            breweriesPage2 = response;
-            setTimeout(()=>{
-                allBreweries = breweriesPage1.concat(breweriesPage2)
-                console.log(allBreweries)
-            }, 500)
             resolve()
-            
         })
         .catch(err => {
             console.error(err);
         })
-        // .then(resolve());
+    })
+}
 
+const getMoreBreweries = () => {
+    return new Promise((resolve)=>{
+        if (breweriesPage1.length === 50) {
+            fetch(`https://api.openbrewerydb.org/breweries?by_city=${myCity}&per_page=50&page=2`)
+                .then(res => res.json())
+                .then(response => {
+                breweriesPage2 = response;
+                allBreweries = breweriesPage1.concat(breweriesPage2)
+                console.log(allBreweries)
+                resolve()
+            })
+                .catch(err => {
+                console.error(err);
+            });
+        } else {
+            allBreweries = breweriesPage1;
+            resolve()
+        }
+    })
+}
+
+const checkForNear = () => {
+    return new Promise((resolve)=>{
+    console.log(allBreweries)
+
+        for (let brewery of allBreweries) {
+            if (brewery.latitude !== null) {
+                let diffLat = Math.abs(brewery.latitude-currentLat)
+                if (diffLat <= .144927) {
+                    let diffLong = Math.abs(brewery.longitude-currentLong)
+                    if (diffLong <= .144927) {
+                        nearByBrews.push(brewery)
+                    }
+                }
+            }
+        }
+        resolve()
+        console.log(nearByBrews)
     })
 }
 
 
-const checkForNear = () => {
-    for (let brewery of allBreweries) {
-        if (brewery.latitude !== null) {
-            let diffLat = Math.abs(brewery.latitude-currentLat)
-            if (diffLat <= .144927) {
-                let diffLong = Math.abs(brewery.longitude-currentLong)
-                if (diffLong <= .144927) {
-                    nearByBrews.push(brewery)
-                }
-            }
-        }
-    }
-    console.log(nearByBrews)
-}
-
-getLocation()
-    .then(getCity)
-    .then(getBreweries)
-    .then(checkForNear);
 
 
 //CHECK IF BREW HAS COORDS
@@ -128,6 +163,13 @@ const displayNearByBrews = () => {
     domBrews.appendChild(listOfBrews)
     load.style.display = 'none';
 }
+
+getLocation()
+    .then(getCity)
+    .then(getBreweries)
+    .then(getMoreBreweries)
+    .then(checkForNear)
+    .then(displayNearByBrews);
 
 // console.log('All breweries: ', allBreweries)
 // console.log('breweries 2: ', breweries2)
