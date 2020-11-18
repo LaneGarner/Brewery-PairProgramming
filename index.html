@@ -3,10 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+<link href="https://fonts.googleapis.com/css2?family=Fascinate+Inline&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
     <script src="main.js" defer></script>
     <title>Fetch IPA</title>
 </head>
 <body>
-    <h1>Fetch IPA</h1>
+    <header>
+        <h1>Fetch IPA</h1>
+    </header>
+    <main>
+        <section class="container">
+            <h3>Welcome!</h3>
+            <h2>Let's find some breweries near you.</h2>
+            <br>
+            <h4>Your location is currently:</h4>
+            <h3 id="curLocation">Austin</h3>
+            <div class="inputBox">
+                <h5>Would you like to search another city?</h5>
+                <div class="inputField">
+                    <input type="text" name="citySearch" id="citySearch" placeholder="Enter City Name">
+                    <button type="submit" id="citySubmit" onclick="updateCity()">Search</button>
+                </div>
+            </div>
+        </section>
+        <section class="container">
+            <h3 id="numOfBreweries"></h3>
+            <h4>Choose a search distance from your location</h4>
+            <div class="inputBox">
+                <div class="inputField">
+                    <select name="distance" id="distance">
+                        <option value="five">5 miles</option>
+                        <option value="ten">10 miles</option>
+                        <option value="twenty">20 miles</option>
+                        <option value="fifty">50 miles</option>
+                    </select>
+                    <button type="submit" id="distanceSubmit" onclick="searchDistance()">Search</button>
+                </div>
+            </div>
+        </section>
+        <section class="container">
+            <div class=breweryList>
+                <h3 id="numOfNearBreweries"></h3>
+                <ul id="searchResults"></ul>
+            </div>
+        </section>
+    </main>
 </body>
 </html>
