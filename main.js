@@ -2,78 +2,65 @@
 
 let nearByBrews = [], breweriesPage1, breweriesPage2, allBreweries, coords, city, myCity, currentLat, currentLong;
 
-// console.log(domBrews)
-
-console.log(currentLat)
-
-
 const getLocation = () => {
-    navigator.geolocation.getCurrentPosition(function(position){
-        console.log(position)
-        currentLat = position.coords.latitude;
-        currentLong = position.coords.longitude;
-        console.log(currentLat, currentLong)
+    return new Promise((resolve)=>{
 
-
-
+        navigator.geolocation.getCurrentPosition(function(position){
+            console.log(position)
+            currentLat = position.coords.latitude;
+            currentLong = position.coords.longitude;
+            console.log(currentLat, currentLong)
+            
+            resolve()
+            
+        })
+        
     })
-}
-
-getLocation()
-
-window.onload = function() {
-
-    setTimeout(()=>{
-        getCity()
-    }, 10000)
-
-    setTimeout(()=> {
-        getBreweries()
-    }, 11000)
-
-    setTimeout(()=> {
-        checkForNear()
-    }, 12000)
-
-    setTimeout(()=> {
-        displayNearByBrews()
-    }, 13000)
 }
 
 const getCity = () => {
-    fetch(`https://www.mapquestapi.com/geocoding/v1/reverse?key=IOGuXL0zAKHaQVwYf9qGnm4UQm9ZG7PZ&location=${currentLat}%2C${currentLong}&outFormat=json&thumbMaps=false`)
-    .then(res=>res.json())
-    .then(response => {
-        if(currentLat){
-            myCity = response.results[0].locations[0].adminArea5
-            console.log(myCity)
-        } 
-        else {
-            location.reload();
-        }
+    return new Promise((resolve)=>{
+
+        fetch(`https://www.mapquestapi.com/geocoding/v1/reverse?key=IOGuXL0zAKHaQVwYf9qGnm4UQm9ZG7PZ&location=${currentLat}%2C${currentLong}&outFormat=json&thumbMaps=false`)
+        .then(res=>res.json())
+        .then(response => {
+
+                myCity = response.results[0].locations[0].adminArea5
+                console.log(myCity)
+                resolve()
+            })
     })
 }
+
 
 const getBreweries = () => {
-    fetch(`https://api.openbrewerydb.org/breweries?by_city=${myCity}&per_page=50`)
-    .then(res => res.json())
-    .then(response => {
-        breweriesPage1 = response;
-    })
-    fetch(`https://api.openbrewerydb.org/breweries?by_city=${myCity}&per_page=50&page=2`)
-    .then(res => res.json())
-    .then(response => {
-        breweriesPage2 = response;
-        setTimeout(()=>{
-            allBreweries = breweriesPage1.concat(breweriesPage2)
-            console.log(allBreweries)
-        }, 500)
+    return new Promise((resolve)=>{
+
+        fetch(`https://api.openbrewerydb.org/breweries?by_city=${myCity}&per_page=50`)
+        .then(res => res.json())
+        .then(response => {
+            breweriesPage1 = response;
+        })
+
+        fetch(`https://api.openbrewerydb.org/breweries?by_city=${myCity}&per_page=50&page=2`)
+        .then(res => res.json())
+        .then(response => {
+            breweriesPage2 = response;
+            setTimeout(()=>{
+                allBreweries = breweriesPage1.concat(breweriesPage2)
+                console.log(allBreweries)
+            }, 500)
+            resolve()
+            
+        })
+        .catch(err => {
+            console.error(err);
+        })
+        // .then(resolve());
 
     })
-    .catch(err => {
-        console.error(err);
-    });
 }
+
 
 const checkForNear = () => {
     for (let brewery of allBreweries) {
@@ -90,6 +77,10 @@ const checkForNear = () => {
     console.log(nearByBrews)
 }
 
+getLocation()
+    .then(getCity)
+    .then(getBreweries)
+    .then(checkForNear);
 
 
 //CHECK IF BREW HAS COORDS
@@ -144,3 +135,4 @@ const displayNearByBrews = () => {
 
 
 // .0144927536261881 = 1 mile
+
