@@ -96,7 +96,7 @@ const getMoreBreweries = () => {
 }
 
 const updateCity = () => {
-    if (allBreweries === []){
+    if (allBreweries.length === 0){
         return new Promise((resolve)=>{
             
             console.log('updatecity')
