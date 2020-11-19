@@ -100,16 +100,18 @@ const getNewCoords = (street,city,state,brewery) => {
 const updateCity = () => {
     if (allBreweries.length === 0){
         return new Promise((resolve)=>{
-            myCity = prompt("Hmm... no breweries were found in your city", "Enter the name of a nearby city here")
-            breweriesPage1 = null;
-            breweriesPage2 = null;
-            allBreweries = null;
-            console.log(myCity)
-            resolve()
-        })
-        .then(getBreweries)
-        .then(getMoreBreweries)
-        .then(getCoords);
+            alert("Hmm... no breweries were found in your city. Try searching the name of a nearby city.")
+            document.querySelector('#yourCity').innerHTML = '';
+        //     myCity = prompt("Hmm... no breweries were found in your city", "Enter the name of a nearby city here")
+        //     breweriesPage1 = null;
+        //     breweriesPage2 = null;
+        //     allBreweries = null;
+        //     console.log(myCity)
+        //     resolve()
+        })  
+        // .then(getBreweries)
+        // .then(getMoreBreweries)
+        // .then(getCoords);
     } else {
         return new Promise((resolve)=>{
             resolve()
