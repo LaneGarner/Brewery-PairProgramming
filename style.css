@@ -28,6 +28,42 @@ header > h1 {
     align-items: center;
     margin: 20px 0;
 }
+.container:nth-child(3) {
+    position: relative;
+    display: flex;
+    
+}
+#favoriteList {
+    position: sticky;
+    align-self: flex-start;
+    top: 20px;
+    margin-left: 20px;
+    width: 200px;
+    height: 50px;
+    /* background: rgba(255, 0, 0, .5); */
+    font-family: 'Fascinate Inline', cursive;
+    font-size: 2.35em;
+    color: rgba(255, 0, 0, .5);
+    visibility: hidden;
+}
+#numbers {
+    position: absolute;
+    right: -10px;
+    bottom: -10px;
+    width: 30px;
+    height: 30px;
+    background: royalblue;
+    border-radius: 50%;
+    font-size: .7em;
+    color: seashell;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+
+}
+#favoriteList:hover {
+    cursor: pointer;
+}
 
 .inputBox {
     margin: 10px 0;
@@ -67,6 +103,10 @@ i:hover {
     margin-top: 20px;
     font-size: 2em;
 }
-.fas {
-    color: red;
+.far {
+    color: rgba(255, 0, 0, .5);
+}
+.fa-beer {
+    color: rgb(190, 159, 2);
+    opacity: .5;
 }
