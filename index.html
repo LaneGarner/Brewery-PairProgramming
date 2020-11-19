@@ -16,8 +16,17 @@
 </header>
 <body>
     <p id="load" class="blinkMe">Loading breweries near you...</p>
-    <input type="text">
+    <hr>
+    <div id="yourCity"></div>
+
+    
+    <form id="citySearch" onsubmit="return false">
+        <label for="search-city">Try searching for another city:</label>
+        <input id="search-city" type="text" placeholder="Enter another city here" required><br>
+        <button onclick="newCity()">Submit</button>
+        <hr>
+    </form>
+    
     <div id="dom-brews"></div>
 </body>
 </html>
-
