@@ -2,24 +2,6 @@
 
 let nearByBrews = [], breweriesPage1, breweriesPage2, allBreweries, coords, city, myCity, currentLat, currentLong, favoriteBrews = [], newLat, newLong;
 
-// window.onload = function() {
-//     navigator.geolocation.getCurrentPosition(function(position){
-//         console.log(position)
-//         currentLat = position.coords.latitude;
-//         currentLong = position.coords.longitude;
-//     })
-//     setTimeout(()=>{
-//         getCity()
-//     }, 4000)
-
-//     setTimeout(()=> {
-//         getBreweries()
-//     }, 5000)
-
-//     setTimeout(()=> {
-//         checkForCoords()
-//     }, 6000)
-// }
 const getLocation = () => {
     return new Promise((resolve) => {
         navigator.geolocation.getCurrentPosition(function(position){
@@ -43,7 +25,13 @@ const getCity = () => {
             resolve()
         })
     });
-}   
+}  
+
+const addFavorite = () => {
+    allBreweries.forEach(element => {
+        element.favorite = false;
+    })
+}
 
 const getMoreBreweries = () => {
     console.log("get more")
@@ -54,15 +42,17 @@ const getMoreBreweries = () => {
             .then(response => {
             breweriesPage2 = response;
             allBreweries = breweriesPage1.concat(breweriesPage2)
+            addFavorite();
             resolve()
             // console.log(allBreweries)
-            })
-            .catch(err => {
+        })
+        .catch(err => {
             console.error(err);
-            });
-        } else {
-            allBreweries = breweriesPage1
-            resolve()
+        });
+    } else {
+        allBreweries = breweriesPage1
+        addFavorite();
+        resolve()
         }
         
     })
@@ -83,7 +73,7 @@ const listNumber = () => {
 
 const getBreweries = () => {
     return new Promise((resolve) => {
-        // myCity = "austin"
+        myCity = "austin"
         console.log(myCity)
         fetch(`https://api.openbrewerydb.org/breweries?by_city=${myCity}&per_page=50`)
             .then(res => res.json())
@@ -94,26 +84,28 @@ const getBreweries = () => {
         .catch(err => {
         console.error(err);
         });
-        
     })
 }
 
 
 const checkForNear = (dist) => {
     console.log('checking for near')
-        for (let brewery of allBreweries) {
-        if (brewery.latitude !== null) {
-            let diffLat = Math.abs(brewery.latitude-currentLat)
-            if (diffLat <= dist) {
-                let diffLong = Math.abs(brewery.longitude-currentLong)
-                if (diffLong <= dist) {
-                    console.log(brewery)
-                    nearByBrews.push(brewery)
+    if (allBreweries){
+        console.log('checking for near')
+            for (let brewery of allBreweries) {
+            if (brewery.latitude !== null) {
+                let diffLat = Math.abs(brewery.latitude-currentLat)
+                if (diffLat <= dist) {
+                    let diffLong = Math.abs(brewery.longitude-currentLong)
+                    if (diffLong <= dist) {
+                        console.log(brewery)
+                        nearByBrews.push(brewery)
+                    }
                 }
             }
         }
     }
-    console.log(nearByBrews)
+    // console.log(nearByBrews)
 }
 
 const getCoords = (city) => {
@@ -139,12 +131,14 @@ const updateCity = () => {
     breweriesPage2 = null;
     allBreweries = null;
     nearByBrews = [];
-    console.log(myCity)
+    // console.log(myCity)
     getBreweries()
         .then(getMoreBreweries)
-        .then(listNumber);
-    getCoords(myCity)
+        .then(listNumber)
+        .then(getCoords(myCity))
         .then(checkForCoords)
+        // .then(checkForNear(0.0724637681309405))
+        .then(searchDistance);
 }
 
 const searchDistance = () => {
@@ -164,16 +158,26 @@ const searchDistance = () => {
     }
     const brewList = document.getElementById("searchResults")
     brewList.innerHTML = null;
-    nearByBrews.map((brews, index) => {
+    nearByBrews.map((brew, index) => {
         const i = document.createElement('i');
         i.classList.add("far")
         i.classList.add("fa-heart")
         i.setAttribute("onclick", "likeIt(this)")
         const li = document.createElement('li');
         li.id = index;
-        const text = document.createTextNode(`${brews.name} - Brew Type: ${brews.brewery_type} - ${brews.street} ${brews.city}`)
+        const h2 = document.createElement('h2');
+        let info = document.createElement('p');
+        info.innerHTML = `
+            <strong>Address:</strong> ${brew.street}, ${brew.city}, ${brew.state}<br>
+            <strong>Phone:</strong> ${brew.phone}<br>
+            <strong>Website:</strong> <a href ="${brew.website_url}" target="_blank">${brew.website_url.slice(11)}</a>
+        `
+        const brewName = document.createTextNode(`${brew.name}`)
+        h2.appendChild(brewName)
+        // p.appendChild(brewInfo)
+        li.appendChild(h2)
+        li.appendChild(info)
         li.appendChild(i)
-        li.appendChild(text)
         brewList.appendChild(li)
     })
 }
@@ -181,10 +185,26 @@ const searchDistance = () => {
 const likeIt = (elem) => {
     let index = elem.parentNode.id
     let favNum = document.getElementById("favNum")
-    elem.classList.remove("far");
-    elem.classList.add("fas");
-    favoriteBrews.push(nearByBrews[index])
-    favNum.innerHTML = `You have ${favoriteBrews.length} favorite breweries!`    
+    if (elem.classList.contains("far")) {
+        elem.classList.remove("far");
+        elem.classList.add("fas");
+        nearByBrews[index]["favorite"] = true;
+        favoriteBrews.push(nearByBrews[index])
+        // console.log(favoriteBrews.length)
+    } else if (elem.classList.contains("fas")) {
+        elem.classList.remove("fas");
+        elem.classList.add("far");
+        let brewName = elem.parentNode.firstChild.innerHTML
+        let favIndex = favoriteBrews.findIndex( element => {
+            if (element.name === brewName) {
+                return true
+            }
+        });
+        nearByBrews[index]["favorite"] = false
+        favoriteBrews.splice(favIndex, 1)
+        // console.log(favoriteBrews.length)
+    }
+        favNum.innerHTML = `You have ${favoriteBrews.length} favorite breweries!`    
 }
 
 //CHECK IF BREW HAS COORDS
@@ -214,7 +234,7 @@ const getNewCoords = (street,city,state,brewery) => {
         // console.log(coords.results[0].locations[0].displayLatLng)
         brewery.latitude = coords.results[0].locations[0].displayLatLng.lat
         brewery.longitude = coords.results[0].locations[0].displayLatLng.lng
-        console.log(brewery)
+        // console.log(brewery)
     })
 }
 
@@ -223,8 +243,11 @@ getLocation()
     .then(getBreweries)
     .then(getMoreBreweries)
     .then(checkForCoords)
-    .then(listNumber);
-    // .then(checkForNear);
+    .then(listNumber)
+    // .then(checkForNear(0.0724637681309405))
+    .then(searchDistance);
+
+
 
 // .0144927536261881 = 1 mile
 
