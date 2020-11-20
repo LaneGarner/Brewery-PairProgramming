@@ -4,15 +4,10 @@ let nearByBrews = [], favoriteBrews= [], dif = 0.21739130434782608, breweriesPag
 
 const getLocation = () => {
     return new Promise((resolve)=>{
-
         navigator.geolocation.getCurrentPosition(function(position){
-            console.log(position)
             currentLat = position.coords.latitude;
             currentLong = position.coords.longitude;
-            console.log(currentLat, currentLong)
-            
             resolve()
-            
         })
         
     })
@@ -20,13 +15,10 @@ const getLocation = () => {
 
 const getCity = () => {
     return new Promise((resolve)=>{
-
         fetch(`https://www.mapquestapi.com/geocoding/v1/reverse?key=IOGuXL0zAKHaQVwYf9qGnm4UQm9ZG7PZ&location=${currentLat}%2C${currentLong}&outFormat=json&thumbMaps=false`)
         .then(res=>res.json())
         .then(response => {
-
                 myCity = response.results[0].locations[0].adminArea5
-                console.log(myCity)
                 resolve()
             })
     })
@@ -54,11 +46,9 @@ const getMoreBreweries = () => {
                 .then(response => {
                 breweriesPage2 = response;
                 allBreweries = breweriesPage1.concat(breweriesPage2)
-                console.log(allBreweries)
                 resolve()
             })
                 .catch(err => {
-                console.error(err);
             });
         } else {
             allBreweries = breweriesPage1;
@@ -76,11 +66,9 @@ const checkForCoords = () => {
                 let streetAdd = [];
                 streetAdd = brewery.street.split(" ")
                 let newStreet = streetAdd.join("+")
-
                 getNewCoords(newStreet, brewery.city, brewery.state, brewery)
             }
         }
-        console.log('*****', allBreweries)
         resolve()
     })
 }
@@ -157,24 +145,17 @@ const randomBeerPic = () => {
     let randomBeer = beerPics[Math.floor(Math.random() * beerPics.length)]
     return randomBeer
 }
-
 const displayBrews = () => {
     nearByBrews = allBreweries;
     let domBrews = document.querySelector('#dom-brews');
     let listOfBrews = document.createElement('ul');
-    
     let load = document.querySelector('#load');
         load.style.display = 'none';
-
-    let yourCity = document.querySelector('#yourCity');
+    
+        let yourCity = document.querySelector('#yourCity');
         yourCity.innerHTML = `
             Showing results for ${myCity}<br>
-            ${allBreweries.length} breweries found
-        `
-    // let cityInfo = document.createElement('p');
-    //     cityInfo.innerHTML = `Showing results for ${myCity}`
-    // yourCity.appendChild(cityInfo);
-
+            ${allBreweries.length} breweries found`
     let citySearch = document.querySelector('#citySearch');
     citySearch.style.display = "flex";
 
@@ -192,8 +173,7 @@ const displayBrews = () => {
             info.innerHTML = `
                 <strong>Address:</strong> ${brew.street}, ${brew.city}, ${brew.state}<br>
                 <strong>Phone:</strong> ${brew.phone}<br>
-                <strong>Website:</strong> <a href ="${brew.website_url}" target="_blank">${brew.website_url.slice(11)}</a><br>
-            `
+                <strong>Website:</strong> <a href ="${brew.website_url}" target="_blank">${brew.website_url.slice(11)}</a><br>`
         const i = document.createElement('i');
             i.classList.add("far")
             i.classList.add("fa-heart")
@@ -226,17 +206,11 @@ const likeIt = (elem) => {
         elem.classList.remove("far");
         elem.classList.add("fas");
         favoriteBrews.push(nearByBrews[index])
-
     } else if (elem.classList.contains("fas")) {
         elem.classList.remove("fas");
         elem.classList.add("far");
     }
-    console.log(favoriteBrews)
 }
-
-
-
-
 
 const newCity = () => {
     document.querySelector('#dom-brews').innerHTML = '';
@@ -251,9 +225,6 @@ const newCity = () => {
     // .then(checkForNear)
     .then(displayBrews);
 }
-
-// console.log('All breweries: ', allBreweries)
-// console.log('breweries 2: ', breweries2)
 
 
 
